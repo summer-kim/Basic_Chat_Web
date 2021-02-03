@@ -24,8 +24,9 @@ io.on('connection', (socket) => {
     io.emit('message', 'A user has lefted');
   });
 
-  socket.on('sendLocation', (coords) => {
+  socket.on('sendLocation', (coords, callback) => {
     io.emit('resendLocation', coords);
+    callback();
   });
 });
 

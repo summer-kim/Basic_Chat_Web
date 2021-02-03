@@ -21,10 +21,17 @@ sendLocation.addEventListener('click', () => {
   }
   navigator.geolocation.getCurrentPosition((position) => {
     const coords = position.coords;
-    socket.emit('sendLocation', {
-      lat: coords.latitude,
-      long: coords.longitude,
-    });
+    socket.emit(
+      'sendLocation',
+      {
+        lat: coords.latitude,
+        long: coords.longitude,
+      },
+      () => {
+        //Third parameter is acknowledgement
+        console.log('geolocation is acknowledged');
+      }
+    );
   });
 });
 
