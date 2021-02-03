@@ -4,7 +4,6 @@ const msgReceiver = document.querySelector('#msgReceiver');
 const msgTemplete = document.querySelector('#msgTemplete').innerHTML;
 
 const sendLocation = document.querySelector('#sendLocation');
-const locationReceiver = document.querySelector('#locationReceiver');
 const locationTemplete = document.querySelector('#locationTemplete').innerHTML;
 
 form.addEventListener('submit', (e) => {
@@ -22,8 +21,11 @@ form.addEventListener('submit', (e) => {
   });
 });
 
-socket.on('message', (message) => {
-  const html = Mustache.render(msgTemplete, { message });
+socket.on('message', ({ text, createdAt }) => {
+  const html = Mustache.render(msgTemplete, {
+    text,
+    createdAt: moment(createdAt).format('hh:mm A'),
+  });
   msgReceiver.insertAdjacentHTML('beforeend', html);
 });
 
@@ -52,7 +54,7 @@ sendLocation.addEventListener('click', () => {
 socket.on('resendLocation', ({ lat, long }) => {
   const url = `https://google.com/maps?q=${lat},${long}`;
   const html = Mustache.render(locationTemplete, { url });
-  msgReceiver.insertAdjacentHTML('beforebegin', html);
+  msgReceiver.insertAdjacentHTML('beforeend', html);
   //locationReceiver.innerHTML = `<div>latitude: ${lat}, longitude: ${long}</div> <a href="https://google.com/maps?q=${lat},${long}">Google Maps Link</a>`;
 });
 

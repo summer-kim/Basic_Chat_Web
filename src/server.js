@@ -9,20 +9,21 @@ const socketio = require('socket.io');
 const server = http.createServer(app);
 const io = socketio(server);
 
+const { sendMessage } = require('./message');
 app.use(express.static(path.join(__dirname, '../public')));
 
 io.on('connection', (socket) => {
-  socket.emit('message', 'Welcome');
-  socket.broadcast.emit('message', 'New User joined!'); //broadcasting to all users except user just joined
+  socket.emit('message', sendMessage('Welcome'));
+  socket.broadcast.emit('message', sendMessage('New User joined!')); //broadcasting to all users except user just joined
 
   socket.on('sendMessage', (message, callback) => {
-    io.emit('message', message);
+    io.emit('message', sendMessage(message));
     callback();
   });
 
   socket.on('disconnect', () => {
     //disconnect is bulit-in method so no need to set emit function on client-side
-    io.emit('message', 'A user has lefted');
+    io.emit('message', sendMessage('A user has lefted'));
   });
 
   socket.on('sendLocation', (coords, callback) => {
