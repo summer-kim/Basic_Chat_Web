@@ -13,8 +13,19 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 io.on('connection', (socket) => {
   socket.emit('message', 'Welcome');
-  socket.on('message', (message) => {
+  socket.broadcast.emit('message', 'New User joined!'); //broadcasting to all users except user just joined
+
+  socket.on('sendMessage', (message) => {
     io.emit('message', message);
+  });
+
+  socket.on('disconnect', () => {
+    //disconnect is bulit-in method so no need to set emit function on client-side
+    io.emit('message', 'A user has lefted');
+  });
+
+  socket.on('sendLocation', (coords) => {
+    io.emit('resendLocation', coords);
   });
 });
 
