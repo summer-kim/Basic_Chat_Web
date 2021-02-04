@@ -9,7 +9,7 @@ const socketio = require('socket.io');
 const server = http.createServer(app);
 const io = socketio(server);
 
-const { sendMessage } = require('./utils/message');
+const { sendMessage, sendLocation } = require('./utils/message');
 const { addUser, removeUser, getUser, getRoom } = require('./utils/users');
 
 app.use(express.static(path.join(__dirname, '../public')));
@@ -44,11 +44,9 @@ io.on('connection', (socket) => {
 
   socket.on('sendLocation', (coords, callback) => {
     const user = getUser(socket.id);
+    const url = `https://google.com/maps?q=${coords.lat},${coords.long}`;
 
-    io.to(user.room).emit('resendLocation', {
-      userName: user.userName,
-      coords,
-    });
+    io.to(user.room).emit('resendLocation', sendLocation(user.userName, url));
     callback();
   });
 

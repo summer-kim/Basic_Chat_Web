@@ -32,9 +32,12 @@ socket.on('message', ({ userName, text, createdAt }) => {
   msgReceiver.insertAdjacentHTML('beforeend', html);
 });
 
-socket.on('resendLocation', ({ userName, coords }) => {
-  const url = `https://google.com/maps?q=${coords.lat},${coords.long}`;
-  const html = Mustache.render(locationTemplete, { userName, url });
+socket.on('resendLocation', ({ userName, url, createdAt }) => {
+  const html = Mustache.render(locationTemplete, {
+    userName,
+    url,
+    createdAt: moment(createdAt).format('hh:mm A'),
+  });
 
   msgReceiver.insertAdjacentHTML('beforeend', html);
   //locationReceiver.innerHTML = `<div>latitude: ${lat}, longitude: ${long}</div> <a href="https://google.com/maps?q=${lat},${long}">Google Maps Link</a>`;

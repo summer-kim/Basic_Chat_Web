@@ -6,4 +6,12 @@ const sendMessage = (userName, text) => {
   };
 };
 
-module.exports = { sendMessage };
+const sendLocation = (userName, url) => {
+  return {
+    userName,
+    url,
+    createdAt: new Date().getTime(),
+  };
+};
+
+module.exports = { sendMessage, sendLocation };
