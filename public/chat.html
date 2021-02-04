@@ -12,7 +12,13 @@
         <div id="msgReceiver" class="chat__messages"></div>
         <div class="compose">
           <form id="message">
-            <input name="msgInput" type="text" placeholder="Message" />
+            <input
+              name="msgInput"
+              type="text"
+              placeholder="Message"
+              required
+              autocomplete="off"
+            />
             <button>Send</button>
           </form>
           <button id="sendLocation">Send Location</button>
