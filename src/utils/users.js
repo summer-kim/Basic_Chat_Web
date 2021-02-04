@@ -42,7 +42,7 @@ const getUser = (id) => {
   return users.find((user) => user.id === id);
 };
 
-const getRoom = (room) => {
+const getUsersinRoom = (room) => {
   room = room.trim().toLowerCase();
   return users.filter((user) => user.room === room);
 };
@@ -51,5 +51,5 @@ module.exports = {
   addUser,
   removeUser,
   getUser,
-  getRoom,
+  getUsersinRoom,
 };

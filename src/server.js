@@ -10,7 +10,12 @@ const server = http.createServer(app);
 const io = socketio(server);
 
 const { sendMessage, sendLocation } = require('./utils/message');
-const { addUser, removeUser, getUser, getRoom } = require('./utils/users');
+const {
+  addUser,
+  removeUser,
+  getUser,
+  getUsersinRoom,
+} = require('./utils/users');
 
 app.use(express.static(path.join(__dirname, '../public')));
 
@@ -32,6 +37,12 @@ io.on('connection', (socket) => {
 
     // socket.emit, io.emit, socket.broadcast.emit
     // io.to.emit, socket.broadcast.to.emit
+
+    io.to(user.room).emit('roomData', {
+      room: user.room,
+      users: getUsersinRoom(user.room),
+    });
+
     callback();
   });
 

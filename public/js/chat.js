@@ -8,6 +8,7 @@ const sendLocation = document.querySelector('#sendLocation');
 //Templetes
 const msgTemplete = document.querySelector('#msgTemplete').innerHTML;
 const locationTemplete = document.querySelector('#locationTemplete').innerHTML;
+const sidebarTemplate = document.querySelector('#sidebar-template').innerHTML;
 
 //Option
 const { userName, room } = Qs.parse(location.search, {
@@ -41,6 +42,15 @@ socket.on('resendLocation', ({ userName, url, createdAt }) => {
 
   msgReceiver.insertAdjacentHTML('beforeend', html);
   //locationReceiver.innerHTML = `<div>latitude: ${lat}, longitude: ${long}</div> <a href="https://google.com/maps?q=${lat},${long}">Google Maps Link</a>`;
+});
+
+socket.on('roomData', ({ room, users }) => {
+  console.log(users);
+  const html = Mustache.render(sidebarTemplate, {
+    room,
+    users,
+  });
+  document.querySelector('#sidebar').innerHTML = html;
 });
 
 //EventListener
