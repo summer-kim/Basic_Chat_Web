@@ -15,6 +15,28 @@ const { userName, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
 });
 
+//Autoscroll
+const autoscroll = () => {
+  // New message element
+  const newMessage = msgReceiver.lastElementChild;
+
+  // Height of the new message
+  const newMessageMargin = getComputedStyle(newMessage).marginBottom;
+  const newMessageHeight = newMessage.offsetHeight + parseInt(newMessageMargin);
+  // Visible height
+  const visibleHeight = msgReceiver.offsetHeight;
+
+  // Height of messages container
+  const containerHeight = msgReceiver.scrollHeight;
+
+  // How far have I scrolled?
+  const howFar = msgReceiver.scrollTop + visibleHeight;
+
+  if (containerHeight - newMessageHeight >= Math.floor(howFar)) {
+    msgReceiver.scrollTop = msgReceiver.scrollHeight;
+  }
+};
+
 //Socket
 socket.emit('join', { userName, room }, (err) => {
   if (err) {
@@ -31,6 +53,7 @@ socket.on('message', ({ userName, text, createdAt }) => {
   });
 
   msgReceiver.insertAdjacentHTML('beforeend', html);
+  autoscroll();
 });
 
 socket.on('resendLocation', ({ userName, url, createdAt }) => {
@@ -42,10 +65,10 @@ socket.on('resendLocation', ({ userName, url, createdAt }) => {
 
   msgReceiver.insertAdjacentHTML('beforeend', html);
   //locationReceiver.innerHTML = `<div>latitude: ${lat}, longitude: ${long}</div> <a href="https://google.com/maps?q=${lat},${long}">Google Maps Link</a>`;
+  autoscroll();
 });
 
 socket.on('roomData', ({ room, users }) => {
-  console.log(users);
   const html = Mustache.render(sidebarTemplate, {
     room,
     users,
