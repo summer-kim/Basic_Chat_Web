@@ -13,11 +13,25 @@ const { sendMessage } = require('./message');
 app.use(express.static(path.join(__dirname, '../public')));
 
 io.on('connection', (socket) => {
-  socket.emit('message', sendMessage('Welcome'));
-  socket.broadcast.emit('message', sendMessage('New User joined!')); //broadcasting to all users except user just joined
+  socket.on('join', ({ userName, room }) => {
+    socket.join(room);
+    console.log(userName);
+    socket.emit('message', sendMessage('Welcome!'));
+    socket.broadcast
+      .to(room)
+      .emit('message', sendMessage(`${userName} has joined!`)); //broadcasting to all users except user just joined
+
+    // socket.emit, io.emit, socket.broadcast.emit
+    // io.to.emit, socket.broadcast.to.emit
+  });
 
   socket.on('sendMessage', (message, callback) => {
     io.emit('message', sendMessage(message));
+    callback();
+  });
+
+  socket.on('sendLocation', (coords, callback) => {
+    io.emit('resendLocation', coords);
     callback();
   });
 
@@ -25,13 +39,7 @@ io.on('connection', (socket) => {
     //disconnect is bulit-in method so no need to set emit function on client-side
     io.emit('message', sendMessage('A user has lefted'));
   });
-
-  socket.on('sendLocation', (coords, callback) => {
-    io.emit('resendLocation', coords);
-    callback();
-  });
 });
-
 // Send Counter project
 
 //let count = 0;
