@@ -13,12 +13,18 @@ const locationTemplete = document.querySelector('#locationTemplete').innerHTML;
 const { userName, room } = Qs.parse(location.search, {
   ignoreQueryPrefix: true,
 });
-console.log(userName, room);
-//Socket
-socket.emit('join', { userName, room });
 
-socket.on('message', ({ text, createdAt }) => {
+//Socket
+socket.emit('join', { userName, room }, (err) => {
+  if (err) {
+    alert(err);
+    location.href = '/';
+  }
+});
+
+socket.on('message', ({ userName, text, createdAt }) => {
   const html = Mustache.render(msgTemplete, {
+    userName,
     text,
     createdAt: moment(createdAt).format('hh:mm A'),
   });
@@ -26,9 +32,9 @@ socket.on('message', ({ text, createdAt }) => {
   msgReceiver.insertAdjacentHTML('beforeend', html);
 });
 
-socket.on('resendLocation', ({ lat, long }) => {
-  const url = `https://google.com/maps?q=${lat},${long}`;
-  const html = Mustache.render(locationTemplete, { url });
+socket.on('resendLocation', ({ userName, coords }) => {
+  const url = `https://google.com/maps?q=${coords.lat},${coords.long}`;
+  const html = Mustache.render(locationTemplete, { userName, url });
 
   msgReceiver.insertAdjacentHTML('beforeend', html);
   //locationReceiver.innerHTML = `<div>latitude: ${lat}, longitude: ${long}</div> <a href="https://google.com/maps?q=${lat},${long}">Google Maps Link</a>`;

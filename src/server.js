@@ -9,35 +9,59 @@ const socketio = require('socket.io');
 const server = http.createServer(app);
 const io = socketio(server);
 
-const { sendMessage } = require('./message');
+const { sendMessage } = require('./utils/message');
+const { addUser, removeUser, getUser, getRoom } = require('./utils/users');
+
 app.use(express.static(path.join(__dirname, '../public')));
 
 io.on('connection', (socket) => {
-  socket.on('join', ({ userName, room }) => {
-    socket.join(room);
-    console.log(userName);
-    socket.emit('message', sendMessage('Welcome!'));
+  socket.on('join', (options, callback) => {
+    const { err, user } = addUser({ id: socket.id, ...options });
+
+    if (err) {
+      return callback(err);
+    }
+    socket.join(user.room);
+    socket.emit('message', sendMessage(user.userName, 'Welcome!'));
     socket.broadcast
-      .to(room)
-      .emit('message', sendMessage(`${userName} has joined!`)); //broadcasting to all users except user just joined
+      .to(user.room)
+      .emit(
+        'message',
+        sendMessage(user.userName, `${user.userName} has joined!`)
+      ); //broadcasting to all users except user just joined
 
     // socket.emit, io.emit, socket.broadcast.emit
     // io.to.emit, socket.broadcast.to.emit
+    callback();
   });
 
   socket.on('sendMessage', (message, callback) => {
-    io.emit('message', sendMessage(message));
+    const user = getUser(socket.id);
+
+    io.to(user.room).emit('message', sendMessage(user.userName, message));
     callback();
   });
 
   socket.on('sendLocation', (coords, callback) => {
-    io.emit('resendLocation', coords);
+    const user = getUser(socket.id);
+
+    io.to(user.room).emit('resendLocation', {
+      userName: user.userName,
+      coords,
+    });
     callback();
   });
 
   socket.on('disconnect', () => {
+    const user = removeUser(socket.id);
+
+    if (user) {
+      io.to(user.room).emit(
+        'message',
+        sendMessage(user.userName, `${user.userName} has lefted`)
+      );
+    }
     //disconnect is bulit-in method so no need to set emit function on client-side
-    io.emit('message', sendMessage('A user has lefted'));
   });
 });
 // Send Counter project
